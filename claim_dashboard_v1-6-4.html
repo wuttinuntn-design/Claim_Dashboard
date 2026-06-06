@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NiM Express — เคลียร์/เคลม Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+<style>
+/* ══════════════════════════════════════════
+   DESIGN TOKENS — NiM Express Claim Dashboard
+══════════════════════════════════════════ */
+:root{
+  --red:#ED1C24;--red2:#c0151b;--red-light:#fff0f0;--red-mid:#f9b8ba;
+  --yellow:#F5A623;--yellow-light:#fff8ee;--yellow2:#c47d0a;
+  --blue:#3FA9B4;--blue-light:#e8f7f9;--blue2:#2d8a94;
+  --green:#22a663;--green-light:#e6f9f0;
+  --orange:#f07800;--orange-light:#fff3e6;
+  --gray:#8a9ab0;--gray-light:#f5f5f5;--gray2:#e8ecf0;
+  --dark:#1a1a1a;--mid:#6b7280;--border:#e5e7eb;
+  --white:#ffffff;--bg:#f8f9fb;
+  --primary:#3FA9B4;--primary2:#2d8a94;--primary-light:#e8f7f9;
+  --r:12px;--r-sm:7px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 0 0 1px var(--border);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 0 0 1px var(--border);
+  --font:'Outfit','Noto Sans Thai',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --tap:44px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--dark);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ══ HEADER ══ */
+.hdr{
+  background:#fff;border-bottom:3px solid var(--blue);border-top:3px solid var(--blue);
+  padding:8px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  min-height:60px;gap:8px;flex-wrap:wrap;
+  padding-left:max(16px,env(safe-area-inset-left));
+  padding-right:max(16px,env(safe-area-inset-right));
+}
+.hdr-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-box{width:36px;height:36px;border-radius:8px;background:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-box svg{width:20px;height:20px;color:#fff}
+.brand-name{font-size:13px;font-weight:800;color:var(--dark);letter-spacing:-.2px}
+.brand-sub{font-size:9px;font-weight:600;color:var(--mid);letter-spacing:.8px;text-transform:uppercase}
+.hdr-divider{width:1px;height:28px;background:var(--border);flex-shrink:0}
+.module-badge{background:var(--blue-light);color:var(--blue2);border:1.5px solid #b8e4ea;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:5px}
+.module-badge svg{width:13px;height:13px}
+.hdr-right{display:flex;align-items:center;gap:6px;flex-shrink:1;min-width:0;flex-wrap:nowrap}
+.hdr-date{font-size:11px;color:var(--mid);background:var(--gray-light);padding:5px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:var(--font-mono)}
+.api-status{display:flex;align-items:center;gap:5px;font-size:11px;padding:5px 10px;border-radius:20px;background:var(--gray-light);color:var(--mid);white-space:nowrap}
+.api-dot{width:7px;height:7px;border-radius:50%;background:var(--gray);flex-shrink:0;transition:background .3s}
+.api-dot.ok{background:var(--green)}
+.api-dot.err{background:var(--red)}
+.api-dot.loading{background:var(--yellow);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-refresh{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-family:var(--font);font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;transition:all .15s}
+.btn-refresh:hover{border-color:var(--blue);color:var(--blue)}
+.btn-refresh svg{width:14px;height:14px;transition:transform .4s}
+.btn-refresh.spinning svg{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ══ TAB BAR ══ */
+.tab-bar{background:#fff;border-bottom:2px solid var(--border);display:flex;position:sticky;top:60px;z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:48px}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex:1;min-width:90px;padding:0 10px;height:var(--tap);font-size:12.5px;font-weight:700;color:var(--mid);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;font-family:var(--font);white-space:nowrap}
+.tab-btn svg{width:16px;height:16px}
+.tab-btn:hover{color:var(--blue)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-lbl{font-size:11px}
+.tab-badge{background:var(--red);color:#fff;border-radius:10px;font-size:10px;font-weight:800;padding:1px 6px;min-width:18px;text-align:center}
+.tab-panel{display:none;padding:14px;max-width:1280px;margin:0 auto;padding-bottom:max(24px,var(--safe-bottom))}
+.tab-panel.active{display:block}
+
+/* ══ SUMMARY CARDS ══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:360px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:#fff;border-radius:var(--r);padding:14px 16px;border:1px solid var(--border);border-top:3px solid var(--border);position:relative;overflow:hidden;cursor:default;transition:transform .15s,box-shadow .15s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.kpi-card.c-blue{border-top-color:var(--blue)}
+.kpi-card.c-red{border-top-color:var(--red)}
+.kpi-card.c-yellow{border-top-color:var(--yellow)}
+.kpi-card.c-green{border-top-color:var(--green)}
+.kpi-card.c-gray{border-top-color:var(--gray)}
+.kpi-label{font-size:10.5px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.kpi-val{font-size:30px;font-weight:800;line-height:1;font-family:var(--font-mono)}
+.kpi-card.c-blue .kpi-val{color:var(--blue)}
+.kpi-card.c-red .kpi-val{color:var(--red)}
+.kpi-card.c-yellow .kpi-val{color:var(--yellow2)}
+.kpi-card.c-green .kpi-val{color:var(--green)}
+.kpi-card.c-gray .kpi-val{color:var(--gray)}
+.kpi-sub{font-size:11px;color:var(--mid);margin-top:5px}
+.kpi-ico{position:absolute;right:12px;top:14px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.kpi-ico.blue{background:var(--blue-light);color:var(--blue)}
+.kpi-ico.red{background:var(--red-light);color:var(--red)}
+.kpi-ico.yellow{background:var(--yellow-light);color:var(--yellow2)}
+.kpi-ico.green{background:var(--green-light);color:var(--green)}
+.kpi-ico.gray{background:var(--gray-light);color:var(--gray)}
+
+/* ══ CHART GRID ══ */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px;margin-bottom:14px}
+.chart-card{background:#fff;border-radius:var(--r);padding:16px;border:1px solid var(--border);overflow:hidden}
+.chart-title{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.chart-title svg{width:15px;height:15px;color:var(--blue)}
+
+/* ══ BAR CHART ══ */
+.bar-chart{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{font-size:11px;color:var(--mid);min-width:90px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:20px;background:#f5f5f5;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:7px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.bar-num{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.bar-fill.blue{background:var(--blue)}
+.bar-fill.red{background:var(--red)}
+.bar-fill.yellow{background:var(--yellow)}.bar-fill.yellow .bar-num{color:var(--dark)}
+.bar-fill.green{background:var(--green)}
+.bar-fill.gray{background:var(--gray)}
+
+/* ══ SEV GRID ══ */
+.sev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sev-item{display:flex;align-items:center;gap:8px;background:var(--gray-light);border-radius:8px;padding:10px 12px}
+.sev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sev-cnt{font-size:20px;font-weight:800;font-family:var(--font-mono);line-height:1}
+.sev-pct{font-size:10px;color:var(--mid)}
+.sev-name{font-size:11px;font-weight:600;color:var(--dark)}
+
+/* ══ SECTION HEADER ══ */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.sec-title{font-size:13px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:6px}
+.sec-title svg{width:15px;height:15px;color:var(--blue)}
+.sec-count{font-size:11px;color:var(--mid);background:var(--gray-light);padding:3px 8px;border-radius:20px;font-family:var(--font-mono)}
+
+/* ══ FILTER ROW ══ */
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search-box{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:0 10px;flex:1;min-width:180px;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--blue)}
+.search-box svg{width:15px;height:15px;color:var(--gray);flex-shrink:0}
+.search-box input{border:none;outline:none;font-family:var(--font);font-size:13px;padding:9px 0;width:100%;background:transparent;color:var(--dark)}
+.search-box input::placeholder{color:var(--gray)}
+.filter-sel{border:1.5px solid var(--border);background:#fff;border-radius:8px;padding:9px 10px;font-family:var(--font);font-size:12.5px;color:var(--dark);cursor:pointer;min-width:120px;outline:none;transition:border-color .15s}
+.filter-sel:focus{border-color:var(--blue)}
+.seg-bar{display:flex;gap:4px;flex-wrap:wrap}
+.seg-btn{padding:7px 12px;border-radius:6px;border:1.5px solid var(--border);background:#fff;font-family:var(--font);font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;transition:all .15s;white-space:nowrap}
+.seg-btn:hover{border-color:var(--blue);color:var(--blue)}
+.seg-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ══ TABLE ══ */
+.tbl-wrap{background:#fff;border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:14px}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--border);gap:8px;flex-wrap:wrap}
+.tbl-title{font-size:13px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:6px}
+.tbl-title svg{width:15px;height:15px;color:var(--blue)}
+.tbl-actions{display:flex;gap:6px;align-items:center}
+.tbl-scroll{overflow-x:auto;overflow-y:auto;max-height:520px;-webkit-overflow-scrolling:touch}
+.tbl-scroll::-webkit-scrollbar{height:4px;width:4px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tbl-scroll table{width:100%;border-collapse:collapse;min-width:900px}
+.tbl-scroll thead th{position:sticky;top:0;z-index:10;background:var(--gray-light);font-size:11px;font-weight:700;color:var(--mid);padding:9px 10px;text-align:left;white-space:nowrap;border-bottom:2px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:#f9fafb}
+tbody tr:last-child{border-bottom:none}
+td{padding:10px 10px;font-size:12.5px;vertical-align:middle}
+.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:10px 16px;border-top:1.5px solid var(--border)}
+.page-btn{min-width:32px;height:32px;padding:0 6px;border-radius:6px;border:1.5px solid var(--border);background:#fff;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.page-btn:hover{border-color:var(--blue);color:var(--blue)}
+.page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ══ BADGES ══ */
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.status-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.status-badge.pending{background:var(--yellow-light);color:var(--yellow2)}
+.status-badge.claimed{background:var(--blue-light);color:var(--blue2)}
+.status-badge.rejected{background:#f3f3f5;color:#8a9ab0}
+.status-badge.new{background:var(--red-light);color:var(--red2)}
+.dmg-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.dmg-badge.d01{background:var(--red-light);color:var(--red2)}
+.dmg-badge.d10{background:var(--yellow-light);color:var(--yellow2)}
+.dmg-badge.d11{background:#fff0f0;color:#c0151b}
+.dmg-badge.d03{background:var(--orange-light);color:var(--orange)}
+.bill-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.bill-badge.cc{background:var(--blue-light);color:var(--blue2)}
+.bill-badge.normal{background:var(--gray-light);color:var(--mid)}
+.bill-no{font-family:var(--font-mono);font-size:11.5px;font-weight:600;color:var(--blue);cursor:pointer}
+.bill-no:hover{text-decoration:underline}
+.claim-no{font-family:var(--font-mono);font-size:11px;color:var(--mid)}
+.money-val{font-family:var(--font-mono);font-weight:700;color:var(--green)}
+.money-zero{color:var(--gray);font-size:11px}
+.person-name{font-weight:600;font-size:12.5px}
+.action-btns{display:flex;gap:4px}
+.btn-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;color:var(--mid);transition:all .15s;flex-shrink:0}
+.btn-icon:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.btn-icon svg{width:14px;height:14px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--mid)}
+.empty-state svg{width:44px;height:44px;opacity:.2;margin-bottom:10px}
+.empty-state p{font-size:13px}
+
+/* ══ TRACKING CARDS ══ */
+.track-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.track-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.age-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;font-family:var(--font-mono);white-space:nowrap}
+.age-badge.new{background:var(--blue-light);color:var(--green)}
+.age-badge.warn{background:var(--yellow-light);color:var(--yellow2)}
+.age-badge.danger{background:var(--red-light);color:var(--red2)}
+
+/* ══ PROGRESS DONUT (CSS) ══ */
+.mini-donut-wrap{display:flex;flex-direction:column;gap:6px}
+.mini-donut-row{display:flex;align-items:center;gap:8px}
+.mini-donut-lbl{font-size:11px;color:var(--mid);min-width:70px}
+.mini-donut-track{flex:1;height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden}
+.mini-donut-fill{height:100%;border-radius:5px;transition:width .6s ease}
+.mini-donut-val{font-size:11px;font-weight:700;min-width:28px;text-align:right}
+
+/* ══ MODAL ══ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 16px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:620px;box-shadow:0 8px 32px rgba(0,0,0,.12);margin:auto}
+@media(max-width:480px){
+  .overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;overflow-y:auto}
+}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);border-radius:14px 14px 0 0;gap:10px;background:#fff;position:sticky;top:0;z-index:1}
+.modal-title{font-size:14px;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:7px}
+.modal-title svg{width:16px;height:16px;color:var(--blue)}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);transition:all .15s;font-size:18px}
+.modal-close:hover{background:var(--gray-light);color:var(--dark)}
+.modal-meta{padding:12px 20px;background:var(--gray-light);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.meta-chip{font-size:11px;color:var(--mid);background:#fff;border:1px solid var(--border);border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:4px}
+.meta-chip b{color:var(--dark);font-weight:700}
+.modal-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.modal-body .full{grid-column:1/-1}
+.modal-section-label{grid-column:1/-1;font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 4px;border-top:1px solid var(--border);margin-top:4px;display:flex;align-items:center;gap:6px}
+.modal-section-label:first-child{border-top:none;margin-top:0;padding-top:0}
+.modal-section-label svg{width:13px;height:13px}
+.fm-group{display:flex;flex-direction:column;gap:5px}
+.fm-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px}
+.fm-label .req{color:var(--red)}
+.fm-input,.fm-select,.fm-textarea{border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;color:var(--dark);background:#fff;transition:border-color .15s;outline:none;width:100%}
+.fm-input:focus,.fm-select:focus,.fm-textarea:focus{border-color:var(--blue)}
+.fm-textarea{resize:vertical;min-height:64px}
+.fm-input:disabled,.fm-select:disabled{background:var(--gray-light);color:var(--mid);cursor:not-allowed}
+.modal-ftr{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1.5px solid var(--border)}
+.btn-cancel{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-family:var(--font);font-size:13px;font-weight:600;color:var(--mid);cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--gray);color:var(--dark)}
+.btn-save{padding:8px 20px;border-radius:8px;border:1.5px solid var(--blue);background:var(--blue);font-family:var(--font);font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-save:hover{filter:brightness(1.1)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+.btn-save svg{width:14px;height:14px}
+
+/* ══ TOAST ══ */
+.toast-wrap{position:fixed;bottom:max(24px,var(--safe-bottom));right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+.toast-ico{font-size:15px}
+
+/* ══ SETUP OVERLAY ══ */
+.setup-overlay{position:fixed;inset:0;background:rgba(248,249,251,.97);z-index:8888;display:none;align-items:center;justify-content:center;padding:20px}
+.setup-overlay.open{display:flex}
+.setup-box{background:#fff;border-radius:16px;padding:32px;max-width:480px;width:100%;border:1px solid var(--border);box-shadow:var(--sh-md);text-align:center}
+.setup-logo{width:56px;height:56px;border-radius:12px;background:var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.setup-logo svg{width:28px;height:28px;color:#fff}
+.setup-title{font-size:18px;font-weight:800;color:var(--dark);margin-bottom:8px}
+.setup-desc{font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:20px}
+.setup-input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font-mono);font-size:12px;color:var(--dark);outline:none;transition:border-color .15s;margin-bottom:12px}
+.setup-input:focus{border-color:var(--blue)}
+.btn-setup-save{width:100%;padding:11px;border-radius:8px;border:none;background:var(--blue);font-family:var(--font);font-size:14px;font-weight:700;color:#fff;cursor:pointer;transition:all .15s}
+.btn-setup-save:hover{filter:brightness(1.1)}
+.btn-setup-demo{width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-family:var(--font);font-size:13px;font-weight:600;color:var(--mid);cursor:pointer;transition:all .15s;margin-top:8px}
+.btn-setup-demo:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ══ TREND TAB ══ */
+.trend-legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.trend-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mid);cursor:pointer;padding:3px 8px;border-radius:6px;transition:background .15s}
+.trend-legend-item:hover{background:var(--gray-light)}
+.trend-tbl-month{font-weight:700;font-size:12.5px;color:var(--dark)}
+.trend-tbl-rate{font-family:var(--font-mono);font-weight:700}
+.trend-tbl-rate.high{color:var(--green)}
+.trend-tbl-rate.mid{color:var(--yellow2)}
+.trend-tbl-rate.low{color:var(--red)}
+
+/* ══ SHIMMER SKELETON ══ */
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton{display:inline-block;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px}
+
+/* ══ COUNTDOWN ══ */
+.refresh-info{font-size:10px;color:var(--gray);background:var(--gray-light);padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.refresh-info svg{width:11px;height:11px;color:var(--blue)}
+#refresh-countdown{font-family:var(--font-mono);font-size:10px;color:var(--blue);font-weight:700}
+@media(max-width:640px){.refresh-info{display:none}}
+
+/* ══ MOBILE RESPONSIVE ══ */
+@media(max-width:640px){
+  .hdr{padding:6px 12px;min-height:52px}
+  .hdr-right .api-status span:not(.api-dot){display:none}
+  .tab-btn .tab-lbl{font-size:9.5px}
+  .tab-btn{min-width:70px;padding:0 6px}
+  .tbl-scroll{max-height:400px}
+  .modal-body{grid-template-columns:1fr}
+  .modal-body .full{grid-column:1}
+}
+@media(max-width:400px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .track-kpi-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-height:500px) and (orientation:landscape){
+  .hdr{min-height:44px;padding:4px 12px}
+  .tab-bar{top:44px;min-height:40px}
+  .tab-btn{height:40px}
+  .tab-panel{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG SPRITES — Modern Lucide-style icons -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <defs>
+
+    <!-- โลโก้ / แบรนด์ — กล่องพัสดุ+ใบเคลม -->
+    <symbol id="i-claim" viewBox="0 0 24 24">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      <line x1="9" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      <line x1="9" y1="17" x2="12" y2="17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      <polyline points="9 9 10 9 11 9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Tab: Overview — เส้นกราฟ trend -->
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Tab: รายการเคส — ตารางรายการ -->
+    <symbol id="i-list" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="3.5" rx="1" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      <rect x="3" y="10.25" width="18" height="3.5" rx="1" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      <rect x="3" y="16.5" width="18" height="3.5" rx="1" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Tab: ติดตามค้าง — นาฬิกา urgency -->
+    <symbol id="i-track" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="8" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-width="1.75"/>
+      <polyline points="12 9 12 13 14.5 15.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5 3L2 6M19 3l3 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- ปุ่มแก้ไข — ดินสอทันสมัย -->
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- ค้นหา -->
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- รีเฟรช — ลูกศรวนซ้ำ -->
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21 3v5h-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 21v-5h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- บันทึก/Export — ลูกศรดาวน์โหลด -->
+    <symbol id="i-save" viewBox="0 0 24 24">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="7 10 12 15 17 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- แจ้งเตือน/ค้าง — สัญลักษณ์ระฆัง -->
+    <symbol id="i-warning" viewBox="0 0 24 24">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- มูลค่า/เงิน — เหรียญ+ลูกศรขึ้น -->
+    <symbol id="i-money" viewBox="0 0 24 24">
+      <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- ปิด modal -->
+    <symbol id="i-close" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="currentColor" fill-opacity=".06" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- โลโก้หลัก — รถบรรทุกโลจิสติกส์ -->
+    <symbol id="i-truck" viewBox="0 0 24 24">
+      <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11v16" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 8h5l3 3v6h-8V8z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="7.5" cy="17.5" r="2.5" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.75"/>
+      <circle cx="17.5" cy="17.5" r="2.5" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.75"/>
+    </symbol>
+
+    <!-- KPI: เคสทั้งหมด — กล่องพัสดุ stack -->
+    <symbol id="i-package" viewBox="0 0 24 24">
+      <path d="M12 2l9 4.5V17L12 21.5 3 17V6.5z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <polyline points="3 6.5 12 11 21 6.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <line x1="12" y1="11" x2="12" y2="21.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <path d="M7.5 4.25 L12 6.5 L16.5 4.25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+    </symbol>
+
+    <!-- KPI: ค้างพิจารณา — นาฬิกาทราย -->
+    <symbol id="i-hourglass" viewBox="0 0 24 24">
+      <path d="M5 2h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+      <path d="M5 22h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+      <path d="M6 2v5l6 5-6 5v5" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <path d="M18 2v5l-6 5 6 5v5" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- KPI: เคลมแล้ว — โล่ตรวจสอบ -->
+    <symbol id="i-shield-check" viewBox="0 0 24 24">
+      <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <polyline points="9 12 11 14 15 10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- KPI: ไม่เคลม — วงกลม X -->
+    <symbol id="i-ban" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9.25" fill="currentColor" fill-opacity=".07" stroke="currentColor" stroke-width="1.75"/>
+      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- ผู้ตรวจสอบ/ทีมงาน -->
+    <symbol id="i-users" viewBox="0 0 24 24">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <circle cx="9" cy="7" r="4" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- DC/สถานที่ -->
+    <symbol id="i-building" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="13" height="18" rx="1" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <path d="M21 8h-5v13h5V8z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <path d="M7 7h4M7 11h4M7 15h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+    </symbol>
+
+    <!-- ความเสียหาย/แตก -->
+    <symbol id="i-damage" viewBox="0 0 24 24">
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- ตรวจสอบ/approve -->
+    <symbol id="i-check-circle" viewBox="0 0 24 24">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <polyline points="22 4 12 14.01 9 11.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Trend รายเดือน -->
+    <symbol id="i-trend" viewBox="0 0 24 24">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="17 6 23 6 23 12" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- เชื่อมต่อ API -->
+    <symbol id="i-plug" viewBox="0 0 24 24">
+      <path d="M12 22v-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <path d="M9 8V2M15 8V2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      <path d="M6 8h12l-1.5 9H7.5L6 8z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+      <path d="M9 17a3 3 0 0 0 6 0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </symbol>
+
+  </defs>
+</svg>
+
+<!-- SETUP OVERLAY -->
+<div class="setup-overlay" id="setup-overlay">
+  <div class="setup-box">
+    <div class="setup-logo"><svg width="28" height="28"><use href="#i-plug"/></svg></div>
+    <div class="setup-title">เชื่อมต่อ Google Sheet</div>
+    <div class="setup-desc">วาง URL ของ Google Apps Script ที่นี่<br>เพื่อโหลดข้อมูลเคลียร์/เคลม real-time</div>
+    <input type="text" class="setup-input" id="setup-url-input" placeholder="https://script.google.com/macros/s/.../exec" value="https://script.google.com/macros/s/AKfycbyLUamRI5MM7oOWBDRVpPuosA70RIBQdHNG9fzMTVziZbtRYQp0R5xJewYR4cAxGVV3/exec">
+    <button class="btn-setup-save" onclick="saveAPIUrl()">เชื่อมต่อ</button>
+    <button class="btn-setup-demo" onclick="loadDemoData()">ใช้ข้อมูลตัวอย่าง (Demo)</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo-box">
+      <svg width="20" height="20"><use href="#i-truck"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">NiM Express</div>
+      <div class="brand-sub">Logistics</div>
+    </div>
+    <div class="hdr-divider"></div>
+    <div class="module-badge">
+      <svg width="13" height="13"><use href="#i-shield-check"/></svg>
+      เคลียร์ / เคลม
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="api-status" id="api-status-badge">
+      <span class="api-dot" id="api-dot"></span>
+      <span id="api-status-txt">ยังไม่ได้เชื่อมต่อ</span>
+    </div>
+    <div class="refresh-info">
+      <svg><use href="#i-refresh"/></svg>
+      รีเฟรชใน <span id="refresh-countdown">—</span>
+    </div>
+    <div class="hdr-date" id="hdr-date"></div>
+    <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()" title="รีเฟรชข้อมูล">
+      <svg><use href="#i-refresh"/></svg>
+      <span>รีเฟรช</span>
+    </button>
+  </div>
+</header>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">
+    <svg><use href="#i-chart"/></svg>
+    <span class="tab-lbl">Overview</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('cases',this)">
+    <svg><use href="#i-list"/></svg>
+    <span class="tab-lbl">รายการเคส</span>
+    <span class="tab-badge" id="tab-badge-cases">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('tracking',this)">
+    <svg><use href="#i-track"/></svg>
+    <span class="tab-lbl">ติดตามค้าง</span>
+    <span class="tab-badge" id="tab-badge-track" style="background:var(--yellow2)">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('trend',this)">
+    <svg><use href="#i-trend"/></svg>
+    <span class="tab-lbl">Trend</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════
+     TAB 1: OVERVIEW
+════════════════════════════════════ -->
+<section class="tab-panel active" id="tab-overview">
+
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">เคสทั้งหมด</div>
+      <div class="kpi-val" id="kpi-total">—</div>
+      <div class="kpi-sub" id="kpi-total-sub">—</div>
+      <div class="kpi-ico blue"><svg width="18" height="18"><use href="#i-package"/></svg></div>
+    </div>
+    <div class="kpi-card c-yellow">
+      <div class="kpi-label">ค้างพิจารณา</div>
+      <div class="kpi-val" id="kpi-pending">—</div>
+      <div class="kpi-sub" id="kpi-pending-sub">รอผลพิจารณา</div>
+      <div class="kpi-ico yellow"><svg width="18" height="18"><use href="#i-hourglass"/></svg></div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">เคลมแล้ว</div>
+      <div class="kpi-val" id="kpi-claimed">—</div>
+      <div class="kpi-sub" id="kpi-claimed-sub">มูลค่ารวม</div>
+      <div class="kpi-ico green"><svg width="18" height="18"><use href="#i-shield-check"/></svg></div>
+    </div>
+    <div class="kpi-card c-gray">
+      <div class="kpi-label">ไม่เคลม</div>
+      <div class="kpi-val" id="kpi-rejected">—</div>
+      <div class="kpi-sub">ตัดจบบิล</div>
+      <div class="kpi-ico gray"><svg width="18" height="18"><use href="#i-ban"/></svg></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <!-- ประเภทความเสียหาย -->
+    <div class="chart-card">
+      <div class="chart-title"><svg><use href="#i-damage"/></svg> ประเภทความเสียหาย</div>
+      <div class="bar-chart" id="chart-dmg-type"></div>
+    </div>
+    <!-- สถานะการพิจารณา -->
+    <div class="chart-card">
+      <div class="chart-title"><svg><use href="#i-check-circle"/></svg> สถานะการพิจารณา</div>
+      <div class="sev-grid" id="chart-status-grid"></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <!-- DC ที่เกิดเหตุ -->
+    <div class="chart-card">
+      <div class="chart-title"><svg><use href="#i-building"/></svg> DC ที่เกิดเหตุ (Top 10)</div>
+      <div class="bar-chart" id="chart-dc"></div>
+    </div>
+    <!-- ผู้ตรวจสอบ -->
+    <div class="chart-card">
+      <div class="chart-title"><svg><use href="#i-users"/></svg> งานแต่ละผู้ตรวจสอบ</div>
+      <div class="bar-chart" id="chart-inspector"></div>
+    </div>
+  </div>
+
+  <!-- มูลค่าเคลมรายเดือน -->
+  <div class="chart-card" style="margin-bottom:14px">
+    <div class="chart-title"><svg><use href="#i-money"/></svg> มูลค่ายืนยันเคลม (บาท)</div>
+    <div id="chart-money-wrap" style="max-height:160px;overflow:hidden">
+      <div class="mini-donut-wrap" id="chart-money-bar"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════
+     TAB 2: รายการเคส
+════════════════════════════════════ -->
+<section class="tab-panel" id="tab-cases">
+
+  <div class="filter-row">
+    <div class="search-box">
+      <svg><use href="#i-search"/></svg>
+      <input type="text" id="case-search" placeholder="ค้นหาเลขเคลม, เลขบิล, DC..." oninput="renderCases()">
+    </div>
+    <select class="filter-sel" id="case-filter-dmg" onchange="renderCases()">
+      <option value="">ประเภทความเสียหาย (ทั้งหมด)</option>
+      <option value="01">01 สินค้าเสียหาย</option>
+      <option value="10">10 สูญหายบางส่วน</option>
+      <option value="11">11 สูญหายทั้งหมด</option>
+      <option value="03">03 รถเกิดอุบัติเหตุ</option>
+    </select>
+    <select class="filter-sel" id="case-filter-status" onchange="_casePage=1;renderCases()">
+      <option value="">สถานะ (ทั้งหมด)</option>
+      <option value="pending">ค้างพิจารณา</option>
+      <option value="claimed">เคลมแล้ว</option>
+      <option value="rejected">ไม่เคลม</option>
+    </select>
+    <select class="filter-sel" id="case-filter-inspector" onchange="renderCases()">
+      <option value="">ผู้พิจารณา (ทั้งหมด)</option>
+    </select>
+  </div>
+
+  <div class="seg-bar" style="margin-bottom:12px" id="seg-bill-type">
+    <button class="seg-btn active" onclick="setCaseType('',this)">ทั้งหมด <span id="seg-cnt-all"></span></button>
+    <button class="seg-btn" onclick="setCaseType('Normal',this)">Normal <span id="seg-cnt-normal"></span></button>
+    <button class="seg-btn" onclick="setCaseType('Cold Chain',this)">Cold Chain <span id="seg-cnt-cc"></span></button>
+  </div>
+
+  <div class="tbl-wrap">
+    <div class="tbl-header">
+      <div class="tbl-title">
+        <svg><use href="#i-list"/></svg>
+        รายการเคสทั้งหมด
+        <span class="sec-count" id="case-count">0</span>
+      </div>
+      <div class="tbl-actions">
+        <button class="btn-icon" title="Export Excel" onclick="exportCSV()"><svg><use href="#i-save"/></svg></button>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>เลขเคลม</th>
+            <th>วันที่แจ้ง</th>
+            <th>เลขบิล</th>
+            <th>ประเภท</th>
+            <th>ความเสียหาย</th>
+            <th>ลูกค้า</th>
+            <th>ผู้ตรวจสอบ</th>
+            <th>สรุปมาตรฐาน</th>
+            <th>DC เกิดเหตุ</th>
+            <th>ผู้พิจารณา</th>
+            <th>ผลพิจารณา</th>
+            <th>มูลค่า (฿)</th>
+            <th>แก้ไข</th>
+          </tr>
+        </thead>
+        <tbody id="case-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="case-pagination"></div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════
+     TAB 3: ติดตามเคสค้าง
+════════════════════════════════════ -->
+<section class="tab-panel" id="tab-tracking">
+
+  <div class="track-kpi-grid">
+    <div class="kpi-card c-red">
+      <div class="kpi-label">ค้างพิจารณา</div>
+      <div class="kpi-val" id="trk-pending">—</div>
+      <div class="kpi-sub">รอผลพิจารณา</div>
+      <div class="kpi-ico red"><svg width="18" height="18"><use href="#i-hourglass"/></svg></div>
+    </div>
+    <div class="kpi-card c-yellow">
+      <div class="kpi-label">ค้าง &gt;30 วัน</div>
+      <div class="kpi-val" id="trk-old30">—</div>
+      <div class="kpi-sub">นับจากวันแจ้งเคลม</div>
+      <div class="kpi-ico yellow"><svg width="18" height="18"><use href="#i-warning"/></svg></div>
+    </div>
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">ค้าง 15-30 วัน</div>
+      <div class="kpi-val" id="trk-old15">—</div>
+      <div class="kpi-sub">ควรเร่งดำเนินการ</div>
+      <div class="kpi-ico blue"><svg width="18" height="18"><use href="#i-track"/></svg></div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">ค้าง &lt;15 วัน</div>
+      <div class="kpi-val" id="trk-new">—</div>
+      <div class="kpi-sub">สถานการณ์ปกติ</div>
+      <div class="kpi-ico green"><svg width="18" height="18"><use href="#i-check-circle"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Alert box -->
+  <div id="trk-alert-box" style="background:var(--red-light);border:1.5px solid var(--red-mid);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:none">
+    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14"><use href="#i-warning"/></svg>
+      เคสค้างพิจารณาเกิน 30 วัน — ต้องเร่งดำเนินการ
+    </div>
+    <div id="trk-alert-list" style="font-size:12px;color:var(--red2);line-height:1.8"></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <div class="tbl-header">
+      <div class="tbl-title">
+        <svg><use href="#i-track"/></svg>
+        เคสค้างพิจารณา
+        <span class="sec-count" id="trk-count">0</span>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>เลขเคลม</th>
+            <th>วันที่แจ้ง</th>
+            <th>เลขบิล</th>
+            <th>ความเสียหาย</th>
+            <th>DC เกิดเหตุ</th>
+            <th>ผู้ตรวจสอบ</th>
+            <th>ผู้พิจารณา</th>
+            <th>อายุเคส</th>
+            <th>แก้ไข</th>
+          </tr>
+        </thead>
+        <tbody id="trk-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════
+     TAB 4: TREND รายเดือน
+════════════════════════════════════ -->
+<section class="tab-panel" id="tab-trend">
+
+  <!-- KPI strip -->
+  <div class="kpi-grid" style="margin-bottom:14px">
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">เดือนล่าสุด</div>
+      <div class="kpi-val" id="trend-kpi-month">—</div>
+      <div class="kpi-sub" id="trend-kpi-month-sub">จำนวนเคส</div>
+      <div class="kpi-ico blue"><svg width="18" height="18"><use href="#i-package"/></svg></div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">มูลค่าเดือนล่าสุด</div>
+      <div class="kpi-val" id="trend-kpi-value">—</div>
+      <div class="kpi-sub">บาท</div>
+      <div class="kpi-ico green"><svg width="18" height="18"><use href="#i-money"/></svg></div>
+    </div>
+    <div class="kpi-card c-yellow">
+      <div class="kpi-label">เดือนที่เคสมากสุด</div>
+      <div class="kpi-val" id="trend-kpi-peak">—</div>
+      <div class="kpi-sub" id="trend-kpi-peak-sub">เคส</div>
+      <div class="kpi-ico yellow"><svg width="18" height="18"><use href="#i-warning"/></svg></div>
+    </div>
+    <div class="kpi-card c-red">
+      <div class="kpi-label">อัตราเคลม (รวม)</div>
+      <div class="kpi-val" id="trend-kpi-rate">—</div>
+      <div class="kpi-sub">% ของเคสทั้งหมด</div>
+      <div class="kpi-ico red"><svg width="18" height="18"><use href="#i-shield-check"/></svg></div>
+    </div>
+  </div>
+
+  <!-- กราฟจำนวนเคสรายเดือน -->
+  <div class="chart-card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="chart-title" style="margin-bottom:0"><svg><use href="#i-trend"/></svg> จำนวนเคสรายเดือน</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="trend-legend-cases"></div>
+    </div>
+    <div style="position:relative;height:220px">
+      <canvas id="chart-trend-cases"></canvas>
+    </div>
+  </div>
+
+  <!-- กราฟมูลค่าเคลมรายเดือน -->
+  <div class="chart-card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="chart-title" style="margin-bottom:0"><svg><use href="#i-money"/></svg> มูลค่ายืนยันเคลมรายเดือน (บาท)</div>
+    </div>
+    <div style="position:relative;height:200px">
+      <canvas id="chart-trend-value"></canvas>
+    </div>
+  </div>
+
+  <!-- กราฟ stacked: ผลพิจารณารายเดือน -->
+  <div class="chart-card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="chart-title" style="margin-bottom:0"><svg><use href="#i-check-circle"/></svg> สถานะการพิจารณารายเดือน</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mid)"><span style="width:10px;height:10px;border-radius:2px;background:#3FA9B4;display:inline-block"></span>เคลมแล้ว</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mid)"><span style="width:10px;height:10px;border-radius:2px;background:#F5A623;display:inline-block"></span>ค้างพิจารณา</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mid)"><span style="width:10px;height:10px;border-radius:2px;background:#e5e7eb;display:inline-block"></span>ไม่เคลม</span>
+      </div>
+    </div>
+    <div style="position:relative;height:200px">
+      <canvas id="chart-trend-status"></canvas>
+    </div>
+  </div>
+
+  <!-- ตารางสรุปรายเดือน -->
+  <div class="tbl-wrap">
+    <div class="tbl-header">
+      <div class="tbl-title"><svg><use href="#i-list"/></svg> ตารางสรุปรายเดือน</div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>เดือน</th>
+            <th>เคสทั้งหมด</th>
+            <th>Normal</th>
+            <th>Cold Chain</th>
+            <th>เคลมแล้ว</th>
+            <th>ค้างพิจารณา</th>
+            <th>ไม่เคลม</th>
+            <th>อัตราเคลม %</th>
+            <th>มูลค่าเคลม (฿)</th>
+          </tr>
+        </thead>
+        <tbody id="trend-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════
+     EDIT MODAL
+══════════════════════ -->
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title"><svg><use href="#i-edit"/></svg> แก้ไขข้อมูลเคส</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="16" height="16"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-meta" id="modal-meta-info"></div>
+    <div class="modal-body">
+
+      <!-- ─── ทีมเคลียร์+เคลม ─── -->
+      <div class="modal-section-label full">
+        <svg width="13" height="13"><use href="#i-users"/></svg>
+        ทีมเคลียร์ + เคลม — สรุปเคส
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">ผู้ตรวจสอบ</label>
+        <select class="fm-select" id="fm-inspector">
+          <option value="">— เลือก —</option>
+          <option>ชิดชนก</option>
+          <option>จิดาภา</option>
+          <option>ธนิดา</option>
+          <option>กนกพิชญ์</option>
+          <option>สิริรัตน์</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">สรุปมาตรฐาน</label>
+        <select class="fm-select" id="fm-summary">
+          <option value="">— เลือก —</option>
+          <option>สำเร็จ</option>
+          <option>แก้ไข</option>
+          <option>ส่งข้อมูล</option>
+          <option>ค้างส่ง</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">DC ที่ทำให้เกิดเหตุ 1</label>
+        <select class="fm-select" id="fm-dc1">
+          <option value="">— เลือก —</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">DC ที่ทำให้เกิดเหตุ 2</label>
+        <select class="fm-select" id="fm-dc2">
+          <option value="">— ไม่มี —</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">DC ที่ทำให้เกิดเหตุ 3</label>
+        <select class="fm-select" id="fm-dc3">
+          <option value="">— ไม่มี —</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">ผู้รับผิดชอบความเสียหาย</label>
+        <select class="fm-select" id="fm-responsible">
+          <option value="">— เลือก —</option>
+          <option>พนักงานบริษัท</option>
+          <option>ผู้ประกอบการรถร่วม</option>
+          <option>Drop point</option>
+          <option>บริษัท</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">ผู้ประเมินความเสียหาย</label>
+        <select class="fm-select" id="fm-assessor">
+          <option value="">— เลือก —</option>
+          <option>ชิดชนก</option>
+          <option>จิดาภา</option>
+          <option>ธนิดา</option>
+          <option>กนกพิชญ์</option>
+          <option>สิริรัตน์</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">เอกสารหักเงิน</label>
+        <input type="text" class="fm-input" id="fm-deduct-doc" placeholder="เลขที่เอกสาร">
+      </div>
+
+      <!-- ─── ทีมเคลม ─── -->
+      <div class="modal-section-label full">
+        <svg width="13" height="13"><use href="#i-shield-check"/></svg>
+        ทีมเคลม — พิจารณาเคส
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">ผู้พิจารณาเคลม</label>
+        <select class="fm-select" id="fm-reviewer">
+          <option value="">— เลือก —</option>
+          <option>จิดาภา</option>
+          <option>ธนิดา</option>
+          <option>กนกพิชญ์</option>
+          <option>ชิดชนก</option>
+          <option>สิริรัตน์</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">วันที่พิจารณา</label>
+        <input type="date" class="fm-input" id="fm-review-date">
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">ผลการพิจารณา</label>
+        <select class="fm-select" id="fm-decision">
+          <option value="">— เลือก —</option>
+          <option>ค้างพิจารณา</option>
+          <option>เคลม มูลค่าตามเงื่อนไข</option>
+          <option>ไม่เคลม (ตัดจบบิล)</option>
+        </select>
+      </div>
+
+      <div class="fm-group">
+        <label class="fm-label">มูลค่ายืนยันเคลม (บาท)</label>
+        <input type="number" class="fm-input" id="fm-claim-value" placeholder="0" min="0">
+      </div>
+
+      <div class="fm-group full">
+        <label class="fm-label">ชี้แจงค้างพิจารณา</label>
+        <textarea class="fm-textarea" id="fm-note" placeholder="หมายเหตุ / ชี้แจงเพิ่มเติม"></textarea>
+      </div>
+
+    </div>
+    <div class="modal-ftr">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-save" id="btn-modal-save" onclick="saveCase()">
+        <svg><use href="#i-save"/></svg>
+        บันทึก
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyLUamRI5MM7oOWBDRVpPuosA70RIBQdHNG9fzMTVziZbtRYQp0R5xJewYR4cAxGVV3/exec';
+// Force ใช้ URL ใหม่เสมอ (ล้าง URL เก่าที่ค้างใน localStorage)
+localStorage.setItem('claim_api_url', DEFAULT_API_URL);
+let APPS_SCRIPT_URL = DEFAULT_API_URL;
+
+const DC_LIST = [
+  'CDC บางนา','CDCบางนา','DC บางนา','DC พุทธมณฑลสาย 3','Dc พุทธมณฑลสาย 3',
+  'DC รังสิต','621 DC รังสิต','DC ฉะเชิงเทรา','DC ชลบุรี','DC อยุธยา',
+  'DC ชะอำ','DC กาญจนบุรี','DC นครปฐม','DC สมุทรสาคร','DC ราชบุรี',
+  'DC สุพรรณบุรี','DC ระยอง','DC จันทบุรี','DC พัทยา','DC ปราจีนบุรี',
+  'DC ลพบุรี','DC สระบุรี','DC เชียงใหม่','DC ลำพูน','DC ลำปาง',
+  'DC เชียงราย','DC ฝาง','DC อุตรดิตถ์','DC พิษณุโลก','DC นครสวรรค์',
+  'DC ขอนแก่น','DC โคราช','DC ปากช่อง','DC อุบลราชธานี','DC ศรีสะเกษ',
+  'DC สุรินทร์','DC บุรีรัมย์','DC ร้อยเอ็ด','DC อุดรธานี','DC นครพนม',
+  'DC สกลนคร','DC ยโสธร','DC ชัยภูมิ','DC มุกดาหาร','DC กาฬสินธุ์',
+  'DC หาดใหญ่','DC นครศรีธรรมราช','DC สุราษฎร์','DC ชุมพร','DC ภูเก็ต',
+  'DC พังงา','DC กระบี่','DC ทุ่งสง','DC พัทลุง','DC หนองคาย',
+  'DC ตาก','DC แพร่','DC น่าน','DC พะเยา','DC แม่สาย',
+  'DC ชัยนาท','DC พิจิตร','DC เพชรบูรณ์','DC สุโขทัย',
+  'Dc ภูเก็ต','DC นครปฐม'
+];
+
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+let CLAIM_DATA = [];
+let _editingIdx = null;
+let _caseTypeFilter = '';
+let _casePage = 1;
+const PAGE_SIZE = 20;
+
+// ══════════════════════════════════════════
+//  DEMO DATA (จาก Google Sheet ที่แนบมา)
+// ══════════════════════════════════════════
+const DEMO_DATA = [
+  {seq:1,claim_no:'2006901000871',claim_date:'2026-01-17',bill_no:'6932601041998',bill_date:'2026-01-09',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'ชิดชนก',summary:'สำเร็จ',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'ผู้ประกอบการรถร่วม',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:2,claim_no:'2006902000504',claim_date:'2026-02-06',bill_no:'6942601167352',bill_date:'2026-01-30',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เครดิต',bill_type:'Normal',inspector:'ชิดชนก',summary:'',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:3,claim_no:'2006902002003',claim_date:'2026-02-16',bill_no:'6912602133403',bill_date:'2026-02-12',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'',dc2:'',dc3:'',responsible:'',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:4,claim_no:'2006902002058',claim_date:'2026-02-16',bill_no:'6912601194580',bill_date:'2026-01-21',dmg_type:'10 สินค้าสูญหาย บางส่วน',customer_type:'เครดิต',bill_type:'Normal',inspector:'ชิดชนก',summary:'',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:5,claim_no:'2006903001319',claim_date:'2026-03-13',bill_no:'1502603032475',bill_date:'2026-03-04',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เงินสด',bill_type:'Normal',inspector:'ธนิดา',summary:'',dc1:'DC เชียงใหม่',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:6,claim_no:'2006903002002',claim_date:'2026-03-21',bill_no:'1502603171235',bill_date:'2026-03-19',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'',dc1:'DC เชียงใหม่',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:7,claim_no:'2006903002026',claim_date:'2026-03-21',bill_no:'1502603171266',bill_date:'2026-03-19',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'',dc1:'DC เชียงใหม่',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:8,claim_no:'2006903002668',claim_date:'2026-03-30',bill_no:'6912603190320',bill_date:'2026-03-20',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-05-18',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:2000,note:''},
+  {seq:9,claim_no:'2006904000151',claim_date:'2026-04-02',bill_no:'6952603142097',bill_date:'2026-03-30',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Cold Chain',inspector:'กนกพิชญ์',summary:'แก้ไข',dc1:'DC ฉะเชิงเทรา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-04-20',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1456,note:''},
+  {seq:10,claim_no:'2006904000243',claim_date:'2026-04-03',bill_no:'6102603318767',bill_date:'2026-03-31',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Cold Chain',inspector:'ชิดชนก',summary:'แก้ไข',dc1:'Dc พุทธมณฑลสาย 3',dc2:'',dc3:'',responsible:'ผู้ประกอบการรถร่วม',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-04-23',decision:'ไม่เคลม (ตัดจบบิล)',claim_value:0,note:''},
+  {seq:11,claim_no:'2006904000335',claim_date:'2026-04-04',bill_no:'6912603118201',bill_date:'2026-03-12',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:12,claim_no:'2006904000342',claim_date:'2026-04-04',bill_no:'2402603072596',bill_date:'2026-03-26',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'',dc1:'DC ขอนแก่น',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:13,claim_no:'2006904000366',claim_date:'2026-04-04',bill_no:'6102603251927',bill_date:'2026-03-24',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-04-28',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1200,note:''},
+  {seq:14,claim_no:'2006904000588',claim_date:'2026-04-06',bill_no:'6912603256781',bill_date:'2026-03-27',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'DC หาดใหญ่',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-05-18',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1102,note:''},
+  {seq:15,claim_no:'2006904000779',claim_date:'2026-04-07',bill_no:'6912604028288',bill_date:'2026-04-03',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'สำเร็จ',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:16,claim_no:'2006904000922',claim_date:'2026-04-08',bill_no:'6922603140607',bill_date:'2026-03-28',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-05-29',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:803,note:''},
+  {seq:17,claim_no:'2006904000915',claim_date:'2026-04-08',bill_no:'4832603025618',bill_date:'2026-03-17',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เครดิต',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'Dc ภูเก็ต',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-04-17',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:800,note:''},
+  {seq:18,claim_no:'2006904001158',claim_date:'2026-04-09',bill_no:'6102603227359',bill_date:'2026-03-23',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Cold Chain',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-05-08',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1568,note:''},
+  {seq:19,claim_no:'2006904001165',claim_date:'2026-04-09',bill_no:'6212604042261',bill_date:'2026-04-06',dmg_type:'10 สินค้าสูญหาย บางส่วน',customer_type:'เครดิต',bill_type:'Cold Chain',inspector:'จิดาภา',summary:'แก้ไข',dc1:'DC รังสิต',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'จิดาภา',review_date:'2026-04-28',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:220,note:''},
+  {seq:20,claim_no:'2006904001127',claim_date:'2026-04-09',bill_no:'6102604064533',bill_date:'2026-04-07',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Normal',inspector:'กนกพิชญ์',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-04-23',decision:'ไม่เคลม (ตัดจบบิล)',claim_value:0,note:''},
+  {seq:21,claim_no:'2006904001363',claim_date:'2026-04-10',bill_no:'2482604006189',bill_date:'2026-04-05',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'แก้ไข',dc1:'DC นครพนม',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'2026-04-22',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1500,note:''},
+  {seq:22,claim_no:'2006904001387',claim_date:'2026-04-10',bill_no:'6212604046184',bill_date:'2026-04-07',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'ธนิดา',review_date:'2026-04-21',decision:'ไม่เคลม (ตัดจบบิล)',claim_value:0,note:''},
+  {seq:30,claim_no:'2006904002346',claim_date:'2026-04-27',bill_no:'6942604040911',bill_date:'2026-04-08',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Normal',inspector:'สิริรัตน์',summary:'สำเร็จ',dc1:'CDCบางนา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:37,claim_no:'2006905000426',claim_date:'2026-05-06',bill_no:'1502604161853',bill_date:'2026-04-26',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เงินสด',bill_type:'Normal',inspector:'จิดาภา',summary:'แก้ไข',dc1:'DC เชียงใหม่',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'สิริรัตน์',deduct_doc:'',reviewer:'ธนิดา',review_date:'2026-05-22',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1000,note:''},
+  {seq:46,claim_no:'2006905000808',claim_date:'2026-05-08',bill_no:'6912605027327',bill_date:'2026-05-08',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'จิดาภา',summary:'แก้ไข',dc1:'CDC บางนา',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-05-27',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1706,note:''},
+  {seq:51,claim_no:'2006905001454',claim_date:'2026-05-14',bill_no:'1502605095614',bill_date:'2026-05-13',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Normal',inspector:'สิริรัตน์',summary:'แก้ไข',dc1:'DC นครสวรรค์',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'ธนิดา',review_date:'2026-05-19',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:2000,note:''},
+  {seq:63,claim_no:'2006905002130',claim_date:'2026-05-21',bill_no:'1552605014375',bill_date:'2026-05-15',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'สิริรัตน์',summary:'แก้ไข',dc1:'DC ชลบุรี',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-05-29',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1550,note:''},
+  {seq:67,claim_no:'2006905002314',claim_date:'2026-05-22',bill_no:'6732605016196',bill_date:'2026-05-20',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'แก้ไข',dc1:'DC นครปฐม',dc2:'',dc3:'',responsible:'ผู้ประกอบการรถร่วม',assessor:'ชิดชนก',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-06-01',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:690,note:''},
+  {seq:68,claim_no:'2006905002390',claim_date:'2026-05-22',bill_no:'1572605063418',bill_date:'2026-05-19',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'แก้ไข',dc1:'DC พุทธมณฑลสาย 3',dc2:'',dc3:'',responsible:'ผู้ประกอบการรถร่วม',assessor:'ชิดชนก',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-05-23',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:1780,note:''},
+  {seq:70,claim_no:'2006905002376',claim_date:'2026-05-22',bill_no:'1502605128152',bill_date:'2026-05-18',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'กนกพิชญ์',summary:'แก้ไข',dc1:'DC รังสิต',dc2:'',dc3:'',responsible:'พนักงานบริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'กนกพิชญ์',review_date:'2026-05-27',decision:'เคลม มูลค่าตามเงื่อนไข',claim_value:900,note:''},
+  {seq:88,claim_no:'2006905002932',claim_date:'2026-05-27',bill_no:'1532605025359',bill_date:'2026-05-25',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ธนิดา',summary:'แก้ไข',dc1:'DC อุตรดิตถ์',dc2:'',dc3:'',responsible:'Drop point',assessor:'ชิดชนก',deduct_doc:'',reviewer:'ธนิดา',review_date:'2026-05-28',decision:'ไม่เคลม (ตัดจบบิล)',claim_value:0,note:''},
+  {seq:100,claim_no:'2006905003342',claim_date:'2026-05-30',bill_no:'2472605068675',bill_date:'2026-05-27',dmg_type:'01 สินค้าเสียหาย',customer_type:'เครดิต',bill_type:'Cold Chain',inspector:'กนกพิชญ์',summary:'ค้างส่ง',dc1:'DC ชะอำ',dc2:'',dc3:'',responsible:'บริษัท',assessor:'ชิดชนก',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:110,claim_no:'2006906000012',claim_date:'2026-06-01',bill_no:'6922605083698',bill_date:'2026-05-21',dmg_type:'11 สินค้าสูญหาย ทั้งหมด',customer_type:'เครดิต',bill_type:'Normal',inspector:'ชิดชนก',summary:'ค้างส่ง',dc1:'DC อยุธยา',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'จิดาภา',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:116,claim_no:'2006906000470',claim_date:'2026-06-02',bill_no:'6212605157315',bill_date:'2026-05-29',dmg_type:'03 รถเกิดอุบัติเหตุ',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ชิดชนก',summary:'',dc1:'DC ชะอำ',dc2:'',dc3:'',responsible:'บริษัท',assessor:'',deduct_doc:'',reviewer:'',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:117,claim_no:'2006906000340',claim_date:'2026-06-02',bill_no:'6922605120584',bill_date:'2026-05-28',dmg_type:'03 รถเกิดอุบัติเหตุ',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ชิดชนก',summary:'',dc1:'DC ชะอำ',dc2:'',dc3:'',responsible:'บริษัท',assessor:'',deduct_doc:'',reviewer:'',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:145,claim_no:'2006906000661',claim_date:'2026-06-04',bill_no:'1572606000092',bill_date:'2026-06-01',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'กนกพิชญ์',summary:'',dc1:'',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+  {seq:151,claim_no:'2006906000722',claim_date:'2026-06-04',bill_no:'1502606007401',bill_date:'2026-06-01',dmg_type:'01 สินค้าเสียหาย',customer_type:'เงินสด',bill_type:'Cold Chain',inspector:'ชิดชนก',summary:'',dc1:'',dc2:'',dc3:'',responsible:'',assessor:'',deduct_doc:'',reviewer:'',review_date:'',decision:'ค้างพิจารณา',claim_value:0,note:''},
+];
+
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+function fmtDate(d){
+  if(!d) return '—';
+  const s = String(d).slice(0,10);
+  const p = s.split('-');
+  if(p.length===3 && p[0].length===4){
+    const dt = new Date(+p[0],+p[1]-1,+p[2]);
+    if(!isNaN(dt)) return dt.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});
+  }
+  return d;
+}
+function daysSince(ds){
+  if(!ds) return null;
+  const d = new Date(String(ds).slice(0,10));
+  if(isNaN(d)) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+function ageBadge(days){
+  if(days===null) return '<span class="age-badge warn">ไม่ระบุ</span>';
+  if(days<=14) return `<span class="age-badge new">${days} วัน</span>`;
+  if(days<=30) return `<span class="age-badge warn">${days} วัน</span>`;
+  return `<span class="age-badge danger">${days} วัน</span>`;
+}
+function dmgBadge(t){
+  if(!t) return '—';
+  const code = t.slice(0,2);
+  const cls = code==='01'?'d01':code==='10'?'d10':code==='11'?'d11':code==='03'?'d03':'';
+  return `<span class="dmg-badge ${cls}">${t.slice(0,2)}</span> <span style="font-size:11px;color:var(--mid)">${t.slice(3)}</span>`;
+}
+function statusBadge(d){
+  if(!d||d==='ค้างพิจารณา') return '<span class="status-badge pending">ค้างพิจารณา</span>';
+  if(d.includes('ไม่เคลม')||d.includes('ยกเลิก')) return '<span class="status-badge rejected">ไม่เคลม</span>';
+  if(d.includes('เคลม')) return '<span class="status-badge claimed">เคลมแล้ว</span>';
+  return `<span class="status-badge">${d}</span>`;
+}
+
+// ══════════════════════════════════════════
+//  API
+// ══════════════════════════════════════════
+function setApiStatus(state, txt){
+  const dot = document.getElementById('api-dot');
+  const label = document.getElementById('api-status-txt');
+  if(!dot) return;
+  dot.className = 'api-dot ' + state;
+  if(label) label.textContent = txt;
+}
+
+async function loadFromAPI(silent=false){
+  if(!APPS_SCRIPT_URL){ return; }
+  if(!silent) showLoading(true);
+  setApiStatus('loading','กำลังโหลด...');
+
+  // ใช้ JSONP เพื่อข้าม CORS — Apps Script รองรับ callback parameter
+  return new Promise((resolve) => {
+    const cbName = '_cb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      cleanup();
+      setApiStatus('err','หมดเวลา');
+      if(!silent) showToast('โหลดข้อมูลหมดเวลา','error');
+      if(CLAIM_DATA.length===0){ CLAIM_DATA=JSON.parse(JSON.stringify(DEMO_DATA)); renderAll(); }
+      showLoading(false);
+      resolve();
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(d){
+      cleanup();
+      if(d && d.data && Array.isArray(d.data)){
+        CLAIM_DATA = d.data;
+        setApiStatus('ok','เชื่อมต่อแล้ว · ' + CLAIM_DATA.length + ' เคส');
+        renderAll();
+        if(!silent) showToast('โหลดข้อมูลสำเร็จ (' + CLAIM_DATA.length + ' เคส)','success');
+      } else {
+        setApiStatus('err','ข้อมูลผิดรูปแบบ');
+        if(!silent) showToast('ข้อมูลผิดรูปแบบ: ' + (d&&d.error||'unknown'),'error');
+        if(CLAIM_DATA.length===0){ CLAIM_DATA=JSON.parse(JSON.stringify(DEMO_DATA)); renderAll(); }
+      }
+      showLoading(false);
+      resolve();
+    };
+
+    script.src = APPS_SCRIPT_URL + '?action=get&callback=' + cbName;
+    script.onerror = function(){
+      cleanup();
+      setApiStatus('err','โหลดไม่สำเร็จ');
+      if(!silent) showToast('โหลดข้อมูลไม่สำเร็จ','error');
+      if(CLAIM_DATA.length===0){ CLAIM_DATA=JSON.parse(JSON.stringify(DEMO_DATA)); renderAll(); }
+      showLoading(false);
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function saveToAPI(rowData){
+  if(!APPS_SCRIPT_URL){ return true; }
+  const btn = document.getElementById('btn-modal-save');
+  if(btn){ btn.disabled=true; btn.innerHTML='<svg width="14" height="14"><use href="#i-save"/></svg> กำลังบันทึก...'; }
+  try{
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain ไม่ใช่ application/json
+      body: JSON.stringify({ action: 'update', data: rowData })
+    });
+    const text = await r.text();
+    let d;
+    try { d = JSON.parse(text); } catch(e){ return true; } // parse fail แต่ส่งสำเร็จแล้ว
+    return d.success !== false;
+  } catch(e){
+    console.error('saveToAPI error:', e);
+    return false;
+  } finally {
+    if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14"><use href="#i-save"/></svg> บันทึก'; }
+  }
+}
+
+function saveAPIUrl(){
+  const url = document.getElementById('setup-url-input').value.trim();
+  if(!url){ showToast('กรุณากรอก URL','error'); return; }
+  APPS_SCRIPT_URL = url;
+  localStorage.setItem('claim_api_url', url);
+  document.getElementById('setup-overlay').classList.remove('open');
+  loadFromAPI();
+}
+
+function loadDemoData(){
+  CLAIM_DATA = JSON.parse(JSON.stringify(DEMO_DATA));
+  document.getElementById('setup-overlay').classList.remove('open');
+  setApiStatus('ok','Demo mode');
+  renderAll();
+  showToast('โหลด Demo data (' + CLAIM_DATA.length + ' เคส) สำเร็จ','success');
+}
+
+// ══════════════════════════════════════════
+//  RENDER ALL
+// ══════════════════════════════════════════
+function renderAll(){
+  populateInspectorFilter();
+  renderOverview();
+  renderCases();
+  renderTracking();
+  renderDCDropdowns();
+}
+
+function populateInspectorFilter(){
+  const names = [...new Set(CLAIM_DATA.map(r=>r.reviewer).filter(Boolean))].sort();
+  const sel = document.getElementById('case-filter-inspector');
+  sel.innerHTML = '<option value="">ผู้พิจารณา (ทั้งหมด)</option>' + names.map(n=>`<option>${n}</option>`).join('');
+}
+
+function renderDCDropdowns(){
+  const opts = '<option value="">— ไม่มี —</option>' + DC_LIST.map(d=>`<option>${d}</option>`).join('');
+  ['fm-dc1','fm-dc2','fm-dc3'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.innerHTML = opts.replace('— ไม่มี —','— เลือก —'); }
+  });
+  document.getElementById('fm-dc2').innerHTML = opts;
+  document.getElementById('fm-dc3').innerHTML = opts;
+}
+
+// ══════════════════════════════════════════
+//  OVERVIEW
+// ══════════════════════════════════════════
+function renderOverview(){
+  const data = CLAIM_DATA;
+  const total = data.length;
+  const pending = data.filter(r=>!r.decision||r.decision==='ค้างพิจารณา').length;
+  const claimed = data.filter(r=>{ const d=r.decision||''; return !d.includes('ไม่เคลม')&&!d.includes('ยกเลิก')&&d.includes('เคลม'); }).length;
+  const rejected = data.filter(r=>{ const d=r.decision||''; return d.includes('ไม่เคลม')||d.includes('ยกเลิก'); }).length;
+  const totalValue = data.reduce((s,r)=>s+(Number(r.claim_value)||0),0);
+
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-total-sub').textContent = `Normal: ${data.filter(r=>r.bill_type==='Normal').length} | Cold Chain: ${data.filter(r=>r.bill_type==='Cold Chain').length}`;
+  document.getElementById('kpi-pending').textContent = pending;
+  document.getElementById('kpi-pending-sub').textContent = `${Math.round(pending/total*100)||0}% ของเคสทั้งหมด`;
+  document.getElementById('kpi-claimed').textContent = claimed;
+  document.getElementById('kpi-claimed-sub').textContent = `฿ ${totalValue.toLocaleString('th-TH')}`;
+  document.getElementById('kpi-rejected').textContent = rejected;
+
+  // badges
+  document.getElementById('tab-badge-cases').textContent = total;
+  document.getElementById('tab-badge-track').textContent = pending;
+
+  // chart: ประเภทความเสียหาย
+  const dmgMap = {};
+  data.forEach(r=>{ const k=(r.dmg_type||'ไม่ระบุ').slice(0,20); dmgMap[k]=(dmgMap[k]||0)+1; });
+  const dmgArr = Object.entries(dmgMap).sort((a,b)=>b[1]-a[1]);
+  const maxDmg = dmgArr[0]?.[1]||1;
+  const dmgColors = ['red','yellow','blue','green','gray'];
+  document.getElementById('chart-dmg-type').innerHTML = dmgArr.map(([lbl,val],i)=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${lbl}">${lbl}</div>
+      <div class="bar-track"><div class="bar-fill ${dmgColors[i%5]}" style="width:${Math.round(val/maxDmg*100)}%"><span class="bar-num">${val}</span></div></div>
+    </div>`).join('');
+
+  // chart: status
+  const cols = [{k:'pending',lbl:'ค้างพิจารณา',dot:'#F5A623'},{k:'claimed',lbl:'เคลมแล้ว',dot:'#3FA9B4'},{k:'rejected',lbl:'ไม่เคลม',dot:'#8a9ab0'}];
+  const vals = {pending,claimed,rejected};
+  document.getElementById('chart-status-grid').innerHTML = cols.map(c=>`
+    <div class="sev-item">
+      <span class="sev-dot" style="background:${c.dot}"></span>
+      <div>
+        <div class="sev-name">${c.lbl}</div>
+        <div class="sev-cnt" style="color:${c.dot}">${vals[c.k]}</div>
+        <div class="sev-pct">${Math.round(vals[c.k]/total*100)||0}%</div>
+      </div>
+    </div>`).join('');
+
+  // chart: DC top 10
+  const dcMap = {};
+  data.forEach(r=>{ const dc=(r.dc1||'ไม่ระบุ DC').replace('CDCบางนา','CDC บางนา').replace('DCบางนา','DC บางนา'); dcMap[dc]=(dcMap[dc]||0)+1; });
+  const dcArr = Object.entries(dcMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxDC = dcArr[0]?.[1]||1;
+  document.getElementById('chart-dc').innerHTML = dcArr.map(([lbl,val],i)=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${lbl}">${lbl.replace('CDC ','').replace('DC ','')}</div>
+      <div class="bar-track"><div class="bar-fill blue" style="width:${Math.round(val/maxDC*100)}%;opacity:${1-i*0.07}"><span class="bar-num">${val}</span></div></div>
+    </div>`).join('');
+
+  // chart: inspector
+  const inspMap = {};
+  data.forEach(r=>{ if(r.inspector){ inspMap[r.inspector]=(inspMap[r.inspector]||0)+1; } });
+  const inspArr = Object.entries(inspMap).sort((a,b)=>b[1]-a[1]);
+  const maxInsp = inspArr[0]?.[1]||1;
+  const inspColors = ['blue','red','yellow','green','gray'];
+  document.getElementById('chart-inspector').innerHTML = inspArr.map(([lbl,val],i)=>`
+    <div class="bar-row">
+      <div class="bar-label">${lbl}</div>
+      <div class="bar-track"><div class="bar-fill ${inspColors[i%5]}" style="width:${Math.round(val/maxInsp*100)}%"><span class="bar-num">${val}</span></div></div>
+    </div>`).join('');
+
+  // chart: money bar (top reviewers by value)
+  const moneyMap = {};
+  data.forEach(r=>{ if(r.reviewer&&r.claim_value>0){ moneyMap[r.reviewer]=(moneyMap[r.reviewer]||0)+(Number(r.claim_value)||0); } });
+  const moneyArr = Object.entries(moneyMap).sort((a,b)=>b[1]-a[1]);
+  const maxMoney = moneyArr[0]?.[1]||1;
+  document.getElementById('chart-money-bar').innerHTML = moneyArr.map(([lbl,val])=>`
+    <div class="mini-donut-row">
+      <div class="mini-donut-lbl">${lbl}</div>
+      <div class="mini-donut-track"><div class="mini-donut-fill" style="width:${Math.round(val/maxMoney*100)}%;background:var(--green)"></div></div>
+      <div class="mini-donut-val" style="color:var(--green)">฿${(val/1000).toFixed(1)}k</div>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--gray);padding:8px">ยังไม่มีข้อมูลมูลค่าเคลม</div>';
+}
+
+// ══════════════════════════════════════════
+//  CASES TABLE
+// ══════════════════════════════════════════
+function getFilteredCases(){
+  const q = (document.getElementById('case-search')?.value||'').toLowerCase();
+  const dmg = document.getElementById('case-filter-dmg')?.value||'';
+  const status = document.getElementById('case-filter-status')?.value||'';
+  const insp = document.getElementById('case-filter-inspector')?.value||'';
+  return CLAIM_DATA.filter(r=>{
+    const matchQ = !q || [r.claim_no,r.bill_no,r.dc1,r.dc2,r.dc3,r.inspector,r.reviewer].some(v=>(v||'').toLowerCase().includes(q));
+    const matchDmg = !dmg || (r.dmg_type||'').startsWith(dmg);
+    const dec = (r.decision||'').trim();
+    const isPending  = !dec || dec==='ค้างพิจารณา';
+    const isRejected = dec.includes('ไม่เคลม') || dec.includes('ยกเลิก');
+    const isClaimed  = !isPending && !isRejected && dec.includes('เคลม');
+    const matchStatus = !status
+      || (status==='pending'  && isPending)
+      || (status==='claimed'  && isClaimed)
+      || (status==='rejected' && isRejected);
+    const matchInsp = !insp || r.reviewer===insp;
+    const matchType = !_caseTypeFilter || r.bill_type===_caseTypeFilter;
+    return matchQ && matchDmg && matchStatus && matchInsp && matchType;
+  });
+}
+
+function setCaseType(t,btn){
+  _caseTypeFilter = t;
+  document.querySelectorAll('#seg-bill-type .seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _casePage = 1;
+  renderCases();
+}
+
+function renderCases(){
+  const filtered = getFilteredCases();
+  document.getElementById('case-count').textContent = filtered.length;
+
+  // seg counts
+  document.getElementById('seg-cnt-all').textContent = `(${CLAIM_DATA.length})`;
+  document.getElementById('seg-cnt-normal').textContent = `(${CLAIM_DATA.filter(r=>r.bill_type==='Normal').length})`;
+  document.getElementById('seg-cnt-cc').textContent = `(${CLAIM_DATA.filter(r=>r.bill_type==='Cold Chain').length})`;
+
+  const totalPages = Math.ceil(filtered.length/PAGE_SIZE)||1;
+  if(_casePage>totalPages) _casePage=1;
+  const slice = filtered.slice((_casePage-1)*PAGE_SIZE, _casePage*PAGE_SIZE);
+
+  const tbody = document.getElementById('case-tbody');
+  if(!slice.length){
+    tbody.innerHTML = `<tr><td colspan="14"><div class="empty-state"><svg><use href="#i-claim"/></svg><p>ไม่พบข้อมูลที่ตรงกับเงื่อนไข</p></div></td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map((r,i) => {
+      const globalIdx = CLAIM_DATA.indexOf(r);
+      const dcCell = [r.dc1,r.dc2,r.dc3].filter(Boolean).join('<br>') || '—';
+      const val = Number(r.claim_value)||0;
+      return `<tr>
+        <td style="color:var(--gray);font-size:11px">${r.seq||(_casePage-1)*PAGE_SIZE+i+1}</td>
+        <td><span class="claim-no">${r.claim_no||'—'}</span></td>
+        <td style="font-size:11.5px;white-space:nowrap">${fmtDate(r.claim_date)}</td>
+        <td><span class="bill-no">${r.bill_no||'—'}</span></td>
+        <td><span class="bill-badge ${r.bill_type==='Cold Chain'?'cc':'normal'}">${r.bill_type||'—'}</span></td>
+        <td>${dmgBadge(r.dmg_type)}</td>
+        <td style="font-size:11.5px">${r.customer_type||'—'}</td>
+        <td><span class="person-name">${r.inspector||'—'}</span></td>
+        <td style="font-size:11.5px">${r.summary||'<span style="color:var(--gray)">—</span>'}</td>
+        <td style="font-size:11px;line-height:1.6">${dcCell}</td>
+        <td><span class="person-name">${r.reviewer||'—'}</span></td>
+        <td>${statusBadge(r.decision)}</td>
+        <td>${val>0?`<span class="money-val">฿${val.toLocaleString('th-TH')}</span>`:'<span class="money-zero">—</span>'}</td>
+        <td><div class="action-btns">
+          <button class="btn-icon" title="แก้ไข" onclick="openEdit(${globalIdx})"><svg><use href="#i-edit"/></svg></button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // pagination
+  renderPagination('case-pagination', _casePage, totalPages, p=>{ _casePage=p; renderCases(); });
+}
+
+// ══════════════════════════════════════════
+//  TRACKING
+// ══════════════════════════════════════════
+function renderTracking(){
+  const pending = CLAIM_DATA.filter(r=>!r.decision||r.decision==='ค้างพิจารณา');
+  const withAge = pending.map(r=>({...r,_days:daysSince(r.claim_date)})).sort((a,b)=>(b._days||0)-(a._days||0));
+
+  const old30 = withAge.filter(r=>r._days!==null&&r._days>30).length;
+  const old15 = withAge.filter(r=>r._days!==null&&r._days>14&&r._days<=30).length;
+  const newCase = withAge.filter(r=>r._days!==null&&r._days<=14).length;
+
+  document.getElementById('trk-pending').textContent = pending.length;
+  document.getElementById('trk-old30').textContent = old30;
+  document.getElementById('trk-old15').textContent = old15;
+  document.getElementById('trk-new').textContent = newCase;
+  document.getElementById('trk-count').textContent = pending.length;
+  document.getElementById('tab-badge-track').textContent = pending.length;
+
+  // alert box
+  const alertBox = document.getElementById('trk-alert-box');
+  const alertList = document.getElementById('trk-alert-list');
+  const danger = withAge.filter(r=>r._days!==null&&r._days>30);
+  if(danger.length>0){
+    alertBox.style.display='block';
+    alertList.innerHTML = danger.slice(0,5).map(r=>`• เคลม <b>${r.claim_no}</b> — ${r.dc1||'ไม่ระบุ DC'} (${r._days} วัน)`).join('<br>') + (danger.length>5?`<br>... และอีก ${danger.length-5} เคส`:'');
+  } else {
+    alertBox.style.display='none';
+  }
+
+  const tbody = document.getElementById('trk-tbody');
+  if(!withAge.length){
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><svg><use href="#i-track"/></svg><p>✅ ไม่มีเคสค้างพิจารณา</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = withAge.map((r,i)=>{
+    const globalIdx = CLAIM_DATA.findIndex(x=>x.claim_no===r.claim_no);
+    return `<tr>
+      <td style="color:var(--gray);font-size:11px">${i+1}</td>
+      <td><span class="claim-no">${r.claim_no||'—'}</span></td>
+      <td style="font-size:11.5px;white-space:nowrap">${fmtDate(r.claim_date)}</td>
+      <td><span class="bill-no">${r.bill_no||'—'}</span></td>
+      <td>${dmgBadge(r.dmg_type)}</td>
+      <td style="font-size:11.5px">${[r.dc1,r.dc2,r.dc3].filter(Boolean).join(', ')||'—'}</td>
+      <td><span class="person-name">${r.inspector||'—'}</span></td>
+      <td><span class="person-name">${r.reviewer||'—'}</span></td>
+      <td>${ageBadge(r._days)}</td>
+      <td><button class="btn-icon" title="แก้ไข" onclick="openEdit(${globalIdx})"><svg><use href="#i-edit"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  PAGINATION HELPER
+// ══════════════════════════════════════════
+function renderPagination(containerId, current, total, onPage){
+  const el = document.getElementById(containerId);
+  if(!el||total<=1){ if(el) el.innerHTML=''; return; }
+  let html = `<button class="page-btn" ${current===1?'disabled':''} onclick="(${onPage})(${current-1})">‹</button>`;
+  const range = [];
+  for(let p=1;p<=total;p++){
+    if(p===1||p===total||Math.abs(p-current)<=1) range.push(p);
+    else if(Math.abs(p-current)===2) range.push('…');
+  }
+  const seen = new Set();
+  range.forEach(p=>{
+    if(p==='…'){ if(!seen.has('…'+p)) html+=`<button class="page-btn" disabled>…</button>`; seen.add('…'+p); return; }
+    html+=`<button class="page-btn ${p===current?'active':''}" onclick="(${onPage})(${p})">${p}</button>`;
+  });
+  html+=`<button class="page-btn" ${current===total?'disabled':''} onclick="(${onPage})(${current+1})">›</button>`;
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+//  EDIT MODAL
+// ══════════════════════════════════════════
+function openEdit(idx){
+  _editingIdx = idx;
+  const r = CLAIM_DATA[idx];
+  if(!r) return;
+
+  // meta info
+  document.getElementById('modal-meta-info').innerHTML = `
+    <div class="meta-chip">เลขเคลม <b>${r.claim_no||'—'}</b></div>
+    <div class="meta-chip">บิล <b>${r.bill_no||'—'}</b></div>
+    <div class="meta-chip">วันที่แจ้ง <b>${fmtDate(r.claim_date)}</b></div>
+    <div class="meta-chip">${r.bill_type||'—'}</div>
+    <div class="meta-chip">${(r.dmg_type||'—').slice(0,20)}</div>`;
+
+  // populate fields
+  setVal('fm-inspector', r.inspector);
+  setVal('fm-summary', r.summary);
+  setVal('fm-dc1', r.dc1);
+  setVal('fm-dc2', r.dc2);
+  setVal('fm-dc3', r.dc3);
+  setVal('fm-responsible', r.responsible);
+  setVal('fm-assessor', r.assessor);
+  document.getElementById('fm-deduct-doc').value = r.deduct_doc||'';
+  setVal('fm-reviewer', r.reviewer);
+  document.getElementById('fm-review-date').value = r.review_date||'';
+  setVal('fm-decision', r.decision);
+  document.getElementById('fm-claim-value').value = r.claim_value||'';
+  document.getElementById('fm-note').value = r.note||'';
+
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function setVal(id, val){
+  const el = document.getElementById(id);
+  if(!el) return;
+  // try to set option
+  for(let o of el.options){ if(o.value===val||o.text===val){ el.value=o.value; return; } }
+  // if not found, add and select
+  if(val){ const o=document.createElement('option'); o.value=val; o.text=val; el.appendChild(o); el.value=val; }
+  else { el.value=''; }
+}
+
+function closeModal(){
+  document.getElementById('edit-overlay').classList.remove('open');
+  _editingIdx = null;
+}
+
+async function saveCase(){
+  if(_editingIdx===null) return;
+  const r = CLAIM_DATA[_editingIdx];
+
+  r.inspector = document.getElementById('fm-inspector').value;
+  r.summary = document.getElementById('fm-summary').value;
+  r.dc1 = document.getElementById('fm-dc1').value;
+  r.dc2 = document.getElementById('fm-dc2').value;
+  r.dc3 = document.getElementById('fm-dc3').value;
+  r.responsible = document.getElementById('fm-responsible').value;
+  r.assessor = document.getElementById('fm-assessor').value;
+  r.deduct_doc = document.getElementById('fm-deduct-doc').value;
+  r.reviewer = document.getElementById('fm-reviewer').value;
+  r.review_date = document.getElementById('fm-review-date').value;
+  r.decision = document.getElementById('fm-decision').value;
+  r.claim_value = Number(document.getElementById('fm-claim-value').value)||0;
+  r.note = document.getElementById('fm-note').value;
+
+  const ok = await saveToAPI(r);
+  closeModal();
+  renderAll();
+  if(ok){ showToast('บันทึกเรียบร้อย','success'); }
+  else { showToast('บันทึกแบบ offline (ยังไม่ได้เชื่อม API)',''); }
+}
+
+// ══════════════════════════════════════════
+//  EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV(){
+  const headers = ['ลำดับ','เลขเคลม','วันที่แจ้ง','เลขบิล','ประเภทบิล','ความเสียหาย','ลูกค้า','ผู้ตรวจสอบ','สรุปมาตรฐาน','DC1','DC2','DC3','ผู้รับผิดชอบ','ผู้ประเมิน','เอกสารหักเงิน','ผู้พิจารณา','วันที่พิจารณา','ผลพิจารณา','มูลค่า(บาท)','หมายเหตุ'];
+  const rows = getFilteredCases().map(r=>[r.seq||'',r.claim_no||'',r.claim_date||'',r.bill_no||'',r.bill_type||'',r.dmg_type||'',r.customer_type||'',r.inspector||'',r.summary||'',r.dc1||'',r.dc2||'',r.dc3||'',r.responsible||'',r.assessor||'',r.deduct_doc||'',r.reviewer||'',r.review_date||'',r.decision||'',r.claim_value||0,r.note||'']);
+  const csv = '\ufeff' + [headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `claim_data_${new Date().toLocaleDateString('th-TH').replace(/\//g,'-')}.csv`;
+  a.click();
+  showToast('Export CSV เสร็จแล้ว','success');
+}
+
+// ══════════════════════════════════════════
+//  CHART.JS LOADER (lazy)
+// ══════════════════════════════════════════
+let _chartJsLoaded = false;
+let _chartJsCallbacks = [];
+
+function loadChartJsThen(cb){
+  if(typeof Chart !== 'undefined'){ cb(); return; }
+  _chartJsCallbacks.push(cb);
+  if(_chartJsLoaded) return; // กำลังโหลดอยู่
+  _chartJsLoaded = true;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.onload = ()=>{ _chartJsCallbacks.forEach(fn=>fn()); _chartJsCallbacks=[]; };
+  document.head.appendChild(s);
+}
+
+// ══════════════════════════════════════════
+//  TREND TAB
+// ══════════════════════════════════════════
+let _chartTrendCases = null;
+let _chartTrendValue = null;
+let _chartTrendStatus = null;
+
+const MONTH_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function getMonthKey(dateStr){
+  if(!dateStr) return null;
+  const s = String(dateStr).slice(0,7); // YYYY-MM
+  return s.match(/^\d{4}-\d{2}$/) ? s : null;
+}
+
+function buildMonthlyData(){
+  const map = {};
+  CLAIM_DATA.forEach(r=>{
+    const mk = getMonthKey(r.claim_date);
+    if(!mk) return;
+    if(!map[mk]) map[mk]={key:mk,total:0,normal:0,cc:0,claimed:0,pending:0,rejected:0,value:0};
+    map[mk].total++;
+    if(r.bill_type==='Normal') map[mk].normal++;
+    if(r.bill_type==='Cold Chain') map[mk].cc++;
+    if(r.decision&&r.decision.includes('เคลม')&&!r.decision.includes('ไม่เคลม')){ map[mk].claimed++; map[mk].value+=Number(r.claim_value)||0; }
+    else if(r.decision&&r.decision.includes('ไม่เคลม')) map[mk].rejected++;
+    else map[mk].pending++;
+  });
+  return Object.values(map).sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+function fmtMonthLabel(mk){
+  const [y,m] = mk.split('-');
+  return MONTH_TH[Number(m)-1] + ' ' + (Number(y)+543).toString().slice(2);
+}
+
+function renderTrend(){
+  if(typeof Chart==='undefined') return; // Chart.js ยังไม่โหลด
+
+  const monthly = buildMonthlyData();
+  if(!monthly.length) return;
+
+  const labels = monthly.map(m=>fmtMonthLabel(m.key));
+  const totals  = monthly.map(m=>m.total);
+  const normals = monthly.map(m=>m.normal);
+  const ccs     = monthly.map(m=>m.cc);
+  const claimed = monthly.map(m=>m.claimed);
+  const pending = monthly.map(m=>m.pending);
+  const rejected= monthly.map(m=>m.rejected);
+  const values  = monthly.map(m=>m.value);
+
+  const last = monthly[monthly.length-1];
+  const peak = monthly.reduce((a,b)=>b.total>a.total?b:a, monthly[0]);
+  const totalClaimed = CLAIM_DATA.filter(r=>r.decision&&r.decision.includes('เคลม')&&!r.decision.includes('ไม่เคลม')).length;
+  const rate = CLAIM_DATA.length ? Math.round(totalClaimed/CLAIM_DATA.length*100) : 0;
+
+  // KPI
+  document.getElementById('trend-kpi-month').textContent = last.total;
+  document.getElementById('trend-kpi-month-sub').textContent = fmtMonthLabel(last.key);
+  document.getElementById('trend-kpi-value').textContent = last.value.toLocaleString('th-TH');
+  document.getElementById('trend-kpi-peak').textContent = fmtMonthLabel(peak.key);
+  document.getElementById('trend-kpi-peak-sub').textContent = peak.total + ' เคส';
+  document.getElementById('trend-kpi-rate').textContent = rate + '%';
+
+  const chartDefaults = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+      callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('th-TH')}`}
+    }},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:'JetBrains Mono, monospace',size:10},maxRotation:45}},
+      y:{grid:{color:'#f0f0f0'},ticks:{font:{size:10}}}
+    }
+  };
+
+  // ── Chart 1: จำนวนเคสรายเดือน (Line + Bar) ──
+  if(_chartTrendCases) _chartTrendCases.destroy();
+  const ctx1 = document.getElementById('chart-trend-cases').getContext('2d');
+  _chartTrendCases = new Chart(ctx1, {
+    data:{
+      labels,
+      datasets:[
+        {type:'bar',label:'Normal',data:normals,backgroundColor:'rgba(63,169,180,.35)',borderColor:'rgba(63,169,180,.7)',borderWidth:1.5,borderRadius:3,stack:'s'},
+        {type:'bar',label:'Cold Chain',data:ccs,backgroundColor:'rgba(34,166,99,.35)',borderColor:'rgba(34,166,99,.7)',borderWidth:1.5,borderRadius:3,stack:'s'},
+        {type:'line',label:'รวม',data:totals,borderColor:'#ED1C24',borderWidth:2,pointBackgroundColor:'#ED1C24',pointRadius:3,pointHoverRadius:5,tension:.35,fill:false,yAxisID:'y'}
+      ]
+    },
+    options:{...chartDefaults,
+      plugins:{...chartDefaults.plugins,
+        legend:{display:false},
+        tooltip:{mode:'index',intersect:false}
+      },
+      scales:{...chartDefaults.scales,
+        y:{...chartDefaults.scales.y,beginAtZero:true,title:{display:true,text:'จำนวนเคส',font:{size:10},color:'#8a9ab0'}}
+      }
+    }
+  });
+
+  // legend
+  document.getElementById('trend-legend-cases').innerHTML = [
+    {color:'rgba(63,169,180,.7)',label:'Normal'},
+    {color:'rgba(34,166,99,.7)',label:'Cold Chain'},
+    {color:'#ED1C24',label:'รวม',line:true}
+  ].map(l=>`<span class="trend-legend-item">
+    ${l.line
+      ? `<span style="width:18px;height:2px;background:${l.color};border-radius:2px;display:inline-block"></span>`
+      : `<span class="trend-legend-dot" style="background:${l.color}"></span>`}
+    ${l.label}
+  </span>`).join('');
+
+  // ── Chart 2: มูลค่าเคลมรายเดือน (Bar) ──
+  if(_chartTrendValue) _chartTrendValue.destroy();
+  const ctx2 = document.getElementById('chart-trend-value').getContext('2d');
+  _chartTrendValue = new Chart(ctx2, {
+    type:'bar',
+    data:{labels,datasets:[{
+      label:'มูลค่าเคลม (฿)',data:values,
+      backgroundColor:'rgba(34,166,99,.4)',borderColor:'#22a663',borderWidth:1.5,borderRadius:4
+    }]},
+    options:{...chartDefaults,
+      plugins:{...chartDefaults.plugins,
+        tooltip:{callbacks:{label:ctx=>' ฿'+ctx.parsed.y.toLocaleString('th-TH')}}
+      },
+      scales:{...chartDefaults.scales,
+        y:{...chartDefaults.scales.y,beginAtZero:true,
+          ticks:{...chartDefaults.scales.y.ticks,callback:v=>v>=1000?'฿'+(v/1000).toFixed(0)+'k':'฿'+v}
+        }
+      }
+    }
+  });
+
+  // ── Chart 3: Stacked status รายเดือน ──
+  if(_chartTrendStatus) _chartTrendStatus.destroy();
+  const ctx3 = document.getElementById('chart-trend-status').getContext('2d');
+  _chartTrendStatus = new Chart(ctx3, {
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'เคลมแล้ว',data:claimed,backgroundColor:'rgba(63,169,180,.7)',borderRadius:3,stack:'s'},
+      {label:'ค้างพิจารณา',data:pending,backgroundColor:'rgba(245,166,35,.7)',borderRadius:3,stack:'s'},
+      {label:'ไม่เคลม',data:rejected,backgroundColor:'rgba(229,231,235,.9)',borderRadius:3,stack:'s'}
+    ]},
+    options:{...chartDefaults,
+      plugins:{...chartDefaults.plugins,tooltip:{mode:'index',intersect:false}},
+      scales:{...chartDefaults.scales,
+        x:{...chartDefaults.scales.x,stacked:true},
+        y:{...chartDefaults.scales.y,stacked:true,beginAtZero:true}
+      }
+    }
+  });
+
+  // ── ตารางสรุปรายเดือน ──
+  const tbody = document.getElementById('trend-table-body');
+  tbody.innerHTML = [...monthly].reverse().map(m=>{
+    const claimRate = m.total ? Math.round(m.claimed/m.total*100) : 0;
+    const rateClass = claimRate>=60?'high':claimRate>=30?'mid':'low';
+    return `<tr>
+      <td class="trend-tbl-month">${fmtMonthLabel(m.key)}</td>
+      <td style="font-family:var(--font-mono);font-weight:700;color:var(--blue)">${m.total}</td>
+      <td style="font-size:12px">${m.normal}</td>
+      <td style="font-size:12px">${m.cc}</td>
+      <td style="font-size:12px;color:var(--green)">${m.claimed}</td>
+      <td style="font-size:12px;color:var(--yellow2)">${m.pending}</td>
+      <td style="font-size:12px;color:var(--gray)">${m.rejected}</td>
+      <td><span class="trend-tbl-rate ${rateClass}">${claimRate}%</span></td>
+      <td style="font-family:var(--font-mono);color:var(--green)">฿${m.value.toLocaleString('th-TH')}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  AUTO-REFRESH (ทุก 5 นาที)
+// ══════════════════════════════════════════
+const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 นาที
+let _autoRefreshTimer = null;
+let _countdownTimer = null;
+let _nextRefreshAt = null;
+
+function startAutoRefresh(){
+  stopAutoRefresh();
+  _nextRefreshAt = Date.now() + AUTO_REFRESH_MS;
+  _autoRefreshTimer = setTimeout(async ()=>{
+    await loadFromAPI(true);
+    startAutoRefresh(); // loop
+  }, AUTO_REFRESH_MS);
+  updateCountdown();
+  _countdownTimer = setInterval(updateCountdown, 10000); // อัปเดตทุก 10 วิ
+}
+
+function stopAutoRefresh(){
+  if(_autoRefreshTimer){ clearTimeout(_autoRefreshTimer); _autoRefreshTimer=null; }
+  if(_countdownTimer){ clearInterval(_countdownTimer); _countdownTimer=null; }
+}
+
+function updateCountdown(){
+  const el = document.getElementById('refresh-countdown');
+  if(!el || !_nextRefreshAt) return;
+  const remaining = Math.max(0, _nextRefreshAt - Date.now());
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  el.textContent = mins > 0 ? `${mins}น ${secs}ว` : `${secs}ว`;
+}
+
+// ══════════════════════════════════════════
+//  TAB / TOAST / MISC
+// ══════════════════════════════════════════
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='trend') loadChartJsThen(renderTrend);
+}
+
+function showToast(msg, type=''){
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<span class="toast-ico">${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span> ${msg}`;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ t.classList.add('show'); }); });
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function showLoading(show){
+  // ใช้ skeleton แทน full overlay — รู้สึกเร็วขึ้น
+  const overlay = document.getElementById('loading-overlay');
+  if(show){
+    // แสดง skeleton บน KPI cards แทน overlay เต็มจอ
+    ['kpi-total','kpi-pending','kpi-claimed','kpi-rejected'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el && CLAIM_DATA.length===0) el.innerHTML = '<span style="display:inline-block;width:40px;height:28px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px"></span>';
+    });
+    // header spinner
+    const dot = document.getElementById('api-dot');
+    if(dot) dot.className = 'api-dot loading';
+  } else {
+    if(overlay) overlay.classList.remove('show');
+  }
+}
+
+function manualRefresh(){
+  const btn = document.getElementById('btn-refresh');
+  if(btn) btn.classList.add('spinning');
+  stopAutoRefresh();
+  if(APPS_SCRIPT_URL){
+    loadFromAPI(true).then(()=>{
+      if(btn) btn.classList.remove('spinning');
+      startAutoRefresh();
+    });
+  } else {
+    renderAll();
+    setTimeout(()=>{ if(btn) btn.classList.remove('spinning'); }, 500);
+    showToast('ยังไม่ได้เชื่อม API — ข้อมูลจาก local');
+  }
+}
+
+// close overlay on backdrop click
+document.getElementById('edit-overlay').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'});
+  renderDCDropdowns();
+
+  if(APPS_SCRIPT_URL){
+    loadFromAPI().then(()=>{ startAutoRefresh(); });
+  } else {
+    setTimeout(()=>{
+      document.getElementById('setup-overlay').classList.add('open');
+    }, 300);
+    renderAll();
+  }
+});
+</script>
+</body>
+</html>
